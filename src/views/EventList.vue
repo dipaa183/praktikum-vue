@@ -1,29 +1,73 @@
+<script setup>
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useEvents } from '@/composables/useEvents'
+import EventCard from '@/components/event/EventCard.vue'
+import SearchBar from '@/components/event/SearchBar.vue'
+import CategoryFilter from '@/components/event/CategoryFilter.vue'
+import AppButton from '@/components/ui/AppButton.vue'
+
+const router = useRouter()
+
+// MENGONSUMSI SINGLE SOURCE OF TRUTH (Hanya mengambil event yang berstatus aktif)
+const { activeEvents } = useEvents()
+
+const searchQuery = ref('')
+const selectedCategory = ref('All')
+const categories = ['All', 'Workshop', 'Meetup', 'Competition', 'Seminar', 'Conference']
+
+// FILTERING REAKTIF TERHADAP DATA STATE AKTIF
+const filteredEvents = computed(() => {
+  return activeEvents.value.filter((event) => {
+    const matchSearch =
+      event.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      event.loc.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const matchCat = selectedCategory.value === 'All' || event.cat === selectedCategory.value
+    return matchSearch && matchCat
+  })
+})
+
+const handleViewDetail = (id) => {
+  router.push(`/browse/events/${id}`)
+}
+</script>
+
 <template>
   <div class="event-list-page">
     <div class="header-section">
       <h2 class="section-title">Upcoming Events</h2>
-      <p class="section-desc">Discover the latest gatherings and activities happening near you.</p>
+      <p class="section-desc">
+        Discover workshops, seminars, tech meetups, and competitions near you.
+      </p>
     </div>
 
-    <div class="event-grid">
-      <div class="event-card" v-for="i in 6" :key="i">
-        <div class="event-body">
-          <div class="event-meta">
-            <span class="event-date">Oct {{ 10 + i }}, 2026</span>
-            <span class="event-category">Community</span>
-          </div>
-          <h3>Community Gathering {{ i }}</h3>
-          <p class="event-loc">📍 Main Auditorium, City Center</p>
-          <p class="event-desc">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at velit vel magna
-            interdum scelerisque.
-          </p>
-          <div class="card-footer">
-            <router-link :to="`/browse/events/${i}`" class="btn-link"
-              >View Details &rarr;</router-link
-            >
-          </div>
-        </div>
+    <div class="filters-section">
+      <SearchBar v-model="searchQuery" />
+      <CategoryFilter :categories="categories" v-model="selectedCategory" />
+    </div>
+
+    <!-- GRID EVENT AKTIF -->
+    <div v-if="filteredEvents.length > 0" class="event-grid">
+      <EventCard
+        v-for="event in filteredEvents"
+        :key="event.id"
+        :event="event"
+        @view-detail="handleViewDetail"
+      />
+    </div>
+
+    <!-- FRIENDLY EMPTY STATE -->
+    <div v-else class="empty-state">
+      <div class="empty-icon">🗓️</div>
+      <h3>No Events Available Yet</h3>
+      <p>
+        There are currently no active events scheduled. Are you an organizer? Publish and manage
+        your first event today through the Dashboard!
+      </p>
+      <div class="empty-action">
+        <AppButton variant="primary" @click="router.push('/dashboard')">
+          Go to Organizer Dashboard &rarr;
+        </AppButton>
       </div>
     </div>
   </div>
@@ -31,94 +75,60 @@
 
 <style scoped>
 .header-section {
-  margin-bottom: 3rem;
+  margin-bottom: var(--space-8);
 }
 .section-title {
   font-size: 2.2rem;
-  color: #1c1948;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-2);
 }
 .section-desc {
-  color: #666;
+  color: var(--text-muted);
   font-size: 1.1rem;
 }
+
+.filters-section {
+  margin-bottom: var(--space-6);
+}
+
+/* ADAPTIVE GRID */
 .event-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2rem;
+  gap: var(--space-6);
 }
-.event-card {
+
+/* FRIENDLY EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: var(--space-12) var(--space-8);
+  color: var(--text-muted);
   background: white;
-  border-radius: 16px;
+  border-radius: var(--space-4);
+  border: 1px dashed var(--border-color);
+  max-width: 600px;
+  margin: var(--space-8) auto;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-  border: 1px solid #f0f0f0;
-  transition:
-    transform 0.3s ease,
-    border-color 0.3s ease;
-  display: flex;
-  flex-direction: column;
 }
-.event-card:hover {
-  transform: translateY(-5px);
-  border-color: #ddd;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+
+.empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: var(--space-3);
 }
-.event-body {
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  color: var(--text-main);
+  margin-bottom: var(--space-2);
 }
-.event-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-.event-date {
-  background: rgba(102, 68, 255, 0.1);
-  color: #6644ff;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-.event-category {
-  color: #888;
-  font-size: 0.85rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.event-body h3 {
-  color: #1c1948;
-  margin-bottom: 0.8rem;
-  font-size: 1.4rem;
-}
-.event-loc {
-  color: #666;
-  font-size: 0.95rem;
-  margin-bottom: 1.5rem;
-}
-.event-desc {
-  color: #555;
+
+.empty-state p {
   line-height: 1.6;
-  font-size: 0.95rem;
-  margin-bottom: 2rem;
-  flex-grow: 1;
+  margin-bottom: var(--space-6);
+  font-size: 1rem;
 }
-.card-footer {
-  border-top: 1px solid #f0f0f0;
-  padding-top: 1.5rem;
-}
-.btn-link {
-  display: inline-block;
-  color: #1c1948;
-  font-weight: 600;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.btn-link:hover {
-  color: #6644ff;
+
+.empty-action {
+  display: flex;
+  justify-content: center;
 }
 </style>
