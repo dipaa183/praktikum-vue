@@ -19,6 +19,7 @@ import Breadcrumb from '@/components/app/Breadcrumb.vue'
   display: flex;
   flex-direction: column;
 }
+
 .main-content {
   flex: 1;
   padding: 2rem;
