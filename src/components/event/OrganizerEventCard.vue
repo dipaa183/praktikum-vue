@@ -2,8 +2,14 @@
 import AppCard from '@/components/ui/AppCard.vue'
 
 defineProps({
-  event: { type: Object, required: true },
-  isCompleted: { type: Boolean, default: false },
+  event: {
+    type: Object,
+    required: true,
+  },
+  isCompleted: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 defineEmits(['view-detail', 'complete', 'delete'])
@@ -29,16 +35,17 @@ defineEmits(['view-detail', 'complete', 'delete'])
     <div class="card-actions">
       <template v-if="!isCompleted">
         <button class="btn-action btn-detail" @click="$emit('view-detail', event.id)">
-          View Details
+          👁️ View Details
         </button>
         <button class="btn-action btn-complete" @click="$emit('complete', event)">
-          Complete Event
+          ✅ Complete Event
         </button>
-        <button class="btn-action btn-delete" @click="$emit('delete', event)">Delete</button>
+        <button class="btn-action btn-delete" @click="$emit('delete', event)">🗑️ Delete</button>
       </template>
+
       <template v-else>
         <button class="btn-action btn-delete" @click="$emit('delete', event)">
-          Delete from Archive
+          🗑️ Delete from Archive
         </button>
       </template>
     </div>
@@ -52,12 +59,14 @@ defineEmits(['view-detail', 'complete', 'delete'])
   flex-direction: column;
   height: 100%;
 }
+
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--space-3);
 }
+
 .category-badge {
   background: rgba(102, 68, 255, 0.1);
   color: var(--primary);
@@ -67,38 +76,46 @@ defineEmits(['view-detail', 'complete', 'delete'])
   font-weight: 600;
   text-transform: uppercase;
 }
+
 .status-badge {
   padding: 4px 10px;
   border-radius: 50px;
   font-size: 0.8rem;
   font-weight: 700;
 }
+
 .status-active {
   background: rgba(46, 204, 113, 0.15);
   color: #27ae60;
 }
+
 .status-completed {
   background: rgba(108, 117, 125, 0.15);
   color: #6c757d;
 }
+
 .event-title {
   font-size: 1.3rem;
   margin-bottom: var(--space-2);
   color: var(--text-main);
 }
+
 .text-strike {
   text-decoration: line-through;
   color: #8a8d93;
 }
+
 .card-completed {
   opacity: 0.85;
   background-color: #fafbfc;
 }
+
 .event-meta {
   font-size: 0.9rem;
   color: var(--text-muted);
   margin-bottom: var(--space-3);
 }
+
 .event-desc {
   font-size: 0.95rem;
   color: var(--text-muted);
@@ -106,6 +123,7 @@ defineEmits(['view-detail', 'complete', 'delete'])
   margin-bottom: var(--space-6);
   flex-grow: 1;
 }
+
 .completed-notice {
   background: #f1f3f5;
   color: #495057;
@@ -114,6 +132,7 @@ defineEmits(['view-detail', 'complete', 'delete'])
   font-size: 0.85rem;
   margin-bottom: var(--space-4);
 }
+
 .card-actions {
   display: flex;
   gap: var(--space-2);
@@ -121,6 +140,7 @@ defineEmits(['view-detail', 'complete', 'delete'])
   padding-top: var(--space-4);
   border-top: 1px solid var(--border-color);
 }
+
 .btn-action {
   flex: 1;
   padding: var(--space-2) var(--space-3);
@@ -133,24 +153,29 @@ defineEmits(['view-detail', 'complete', 'delete'])
   transition: all 0.2s;
   white-space: nowrap;
 }
+
 .btn-detail:hover {
   background: var(--bg-light);
   color: var(--primary);
   border-color: var(--primary);
 }
+
 .btn-complete {
   color: #27ae60;
   border-color: rgba(39, 174, 96, 0.3);
 }
+
 .btn-complete:hover {
   background: #27ae60;
   color: white;
 }
+
 .btn-delete {
   color: #e63946;
   border-color: rgba(230, 57, 70, 0.3);
   flex: 0 0 auto;
 }
+
 .btn-delete:hover {
   background: #e63946;
   color: white;
